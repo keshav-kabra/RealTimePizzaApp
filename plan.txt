@@ -1,0 +1,7 @@
+// larvel mix version i hace used is older
+
+//to install a package => npm install package_name@ver.io.o || yarn add package_name@version
+// to run =>  nodemon server.js || yarn 
+// npm run something === yarn something
+
+/*installed laravel- min, telwind css, */
