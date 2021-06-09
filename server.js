@@ -9,6 +9,7 @@ const session = require('express-session')
 require('dotenv').config()
 const flash = require('express-flash')
 const MongoDbStore = require('connect-mongo')(session) //use to store session in mongodb data base
+const passport = require('passport')
 
 
 //database connection
@@ -30,6 +31,7 @@ db.once("open",  ()=> {
 })
 
 
+
 //session store
 let mongoStrore = new MongoDbStore({
   mongooseConnection : db, // pass a connection
@@ -48,14 +50,25 @@ app.use(session({
 
 app.use(flash()) //middle ware for sessions
 
+//passport config
+
+const passportInit = require('./app/config/passport')
+passportInit(passport)
+app.use(passport.initialize())
+app.use(passport.session())
+
 //global middleware
 app.use((req, res, next)=>{
   res.locals.session = req.session
+  res.locals.user = req.user
   next()
 })
 
-//set template engine
+//Assets
 app.use(express.json())
+app.use(express.urlencoded({extended: false }))
+
+//set template engine
 app.use(express.static('public'))
 app.use(expressLayout)
 app.set('views', path.join(__dirname, '/resources/views'))
