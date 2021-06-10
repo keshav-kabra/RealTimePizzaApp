@@ -13,6 +13,7 @@ function initRoutes(app){
     app.get('/login',guest ,authController().login)
     app.post('/login', authController().postLogin)
     app.post('/logout', authController().logout)
+    
     app.post('/update-cart', cartController().update)
 
 }
