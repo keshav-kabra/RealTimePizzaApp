@@ -1,4 +1,7 @@
 // client side javascript
+
+
+import initAdmin  from './admin'
 import axios from 'axios'
 import Noty from 'noty'
 
@@ -34,3 +37,13 @@ addToCart.forEach((btn)=>{
 
     })
 })
+
+const alertMsg = document.querySelector('#success-alert')
+if(alertMsg){
+    setTimeout(()=>{
+        alertMsg.remove()
+    }, 2000)
+}
+
+
+initAdmin()

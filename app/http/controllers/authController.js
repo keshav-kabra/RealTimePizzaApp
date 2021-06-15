@@ -4,6 +4,12 @@ const bcrypt = require('bcrypt');
 const passport = require('passport');
 
 function authController() {
+
+    const _getRedirectUrl = (req) => {
+
+        return req.user.role === 'admin' ? 'admin/orders' : 'customer/orders'
+    } 
+
     return {
         register (req, res){
             res.render('auth/register')
@@ -23,8 +29,8 @@ function authController() {
             }
 
             //if email already exist in data base
-            User.exists({email : email}, (err, res)=>{
-                if(res){
+            User.exists({email : email}, (err, result)=>{
+                if(result){
                     req.flash('error', 'Email already Exist')
                     req.flash('name', name)
                     req.flash('email', email)
@@ -49,7 +55,7 @@ function authController() {
                 return res.redirect('/') 
             }).catch((err)=>{
                 req.flash('error', 'something went wrong')
-                res.redirect('/register')
+                return res.redirect('/register')
 
             })
         },
@@ -79,7 +85,7 @@ function authController() {
                         return next(err)
                     }
 
-                return res.redirect('/')
+                return res.redirect(_getRedirectUrl(req))
 
             })
         })(req, res, next)
