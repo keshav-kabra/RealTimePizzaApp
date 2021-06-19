@@ -2,13 +2,12 @@ import axios from 'axios'
 import moment from 'moment'
 import Noty from 'noty'
 
-function initAdmin(){
+function initAdmin(socket){
 
     // const orderTableBody = document.querySelector('#orderBodyTable')
     // let orders = []
     // let markup
     const orderTableBody =  document.querySelector('#orderTableBody')
-    console.log(orderTableBody)
     let orders = []
     let markup
 
@@ -96,7 +95,24 @@ function initAdmin(){
             </tr>
         `
         }).join('')
+
+
     }
+
+
+    
+    socket.on('orderPlaced', (order)=>{
+        new Noty({
+            type : 'success',
+            timeout : 1000,
+            progressBar: false,
+            text : 'New Order'
+        }).show();
+
+        orders.unshift(order)
+        orderTableBody.innerHTML = ''
+        orderTableBody.innerHTML = generateMarkup(orders)
+    })
     
 }
 

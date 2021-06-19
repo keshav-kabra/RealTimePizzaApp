@@ -10,6 +10,8 @@ require('dotenv').config()
 const flash = require('express-flash')
 const MongoDbStore = require('connect-mongo')(session) //use to store session in mongodb data base
 const passport = require('passport')
+const Emitter = require('events') 
+
 
 
 //database connection
@@ -29,6 +31,12 @@ db.once("open",  ()=> {
 }).catch(err => {
     console.log('connection failed')
 })
+
+
+//Event Emitter
+
+const eventEmitter = new Emitter()
+app.set('eventEmitter', eventEmitter)
 
 
 
@@ -80,8 +88,26 @@ require('./routes/web')(app);
 
 
 const PORT = process.env.PORT || 3000
-app.listen(3000, ()=>{
+const server = app.listen(3000, ()=>{
     console.log('listening on port 3000')
+})
+
+
+const io = require('socket.io')(server)
+io.on('connection', (socket) => {
+      // Join
+      socket.on('join', (orderId) => {
+        socket.join(orderId)
+      })
+})
+
+
+eventEmitter.on('orderUpdated', (data) => {
+  io.to(`order_${data.id}`).emit('orderUpdated', data)
+})
+
+eventEmitter.on('orderPlaced', (data)=>{
+  io.to('adminRoom').emit('orderPlaced', data)
 })
 
 /*

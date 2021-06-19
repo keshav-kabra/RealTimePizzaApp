@@ -21,9 +21,17 @@ function orderController() {
             })
             order.save().then(result =>{
 
-                req.flash('success', 'Order placed successfully')   
-                delete req.session.cart 
-                return res.redirect('customer/orders')
+                Order.populate(result, {path : 'customerId'} , (err, placedOrder)=>{
+                    req.flash('success', 'Order placed successfully')   
+                    delete req.session.cart 
+    
+                    //emit event for admin  
+                    const eventEmitter = req.app.get('eventEmitter')
+                    eventEmitter.emit('orderPlaced' , placedOrder ) //result gives the recently saved order
+                    return res.redirect('customer/orders') 
+                })
+
+                
 
             }).catch( err => {
                 console.log(err)
@@ -39,7 +47,7 @@ function orderController() {
             res.header('Cache-Control', 'no-store')
             res.render('customers/orders', {orders : orders, moment : moment})
 
-        }
+        },
 
         // async index(req, res) {
         //     const orders = await Order.find({ customerId: req.user._id },
@@ -47,6 +55,18 @@ function orderController() {
         //         { sort: { 'createdAt': -1 } } )
         //     res.render('customers/orders', { orders: orders, moment: moment })
         // },
+
+        async show(req, res){
+            const order = await Order.findById(req.params.id)
+
+            //autherize user => the order we are fectching is of that user or not
+            if(req.user._id.toString() === order.customerId.toString()){
+                return res.render('customers/singleOrder', {order : order})
+            }
+            
+            return res.redirect('/')
+            
+        }
     }
 }
 
